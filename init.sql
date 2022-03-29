@@ -3,6 +3,6 @@ CREATE TABLE notifications(
     date DATETIME NOT NULL,
     uuid varchar(50) NOT NULL,
     eventtype varchar(20) NOT NULL,
-    eventdata JSON NOT NULL
+    eventdata varchar(500) NOT NULL
 );
 

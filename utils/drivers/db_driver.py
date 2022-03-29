@@ -1,10 +1,9 @@
-from os import curdir
 import sqlite3
-from main import Logs
+
 
 class driver:
 
-    def __init__(self,database:str,logs:Logs=None) -> None:
+    def __init__(self,database:str,logs:object=None) -> None:
         if logs != None:
             self.logs=logs
         self.__con = None
@@ -13,8 +12,13 @@ class driver:
 
     def insert(self,query):
         cursor = self.__get_cursor()
-        cursor.execute(query)
+        result = cursor.execute(query[0],query[1])
+        self.__con.commit()
+        return result
  
+    def select_all(self,query):
+        pass
+
     def connect(self):
         try:
             self.__con = sqlite3.connect(self.database)

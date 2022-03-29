@@ -1,5 +1,5 @@
 import os
-from config.config import config as CONFIG
+import config.config
 from utils.LogsModule.Logs import Logs
 from utils.drivers.db_driver import driver
 from utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
@@ -7,27 +7,9 @@ from utils.RequestModule.Request import Request
 from models.model_factory import factory
 from utils.ProcessHandler.Handler import Handler
 
-file_path =  os.getcwd() + "/bucket/"
-workspace_path =  os.getcwd() + "/workspace/"
-model_factory = factory()
-logs = Logs(log_file=os.getcwd() + "/Logs/logs.txt")
-db_driver = driver(CONFIG["database"],logs.GetInstance())
-filemapper = TreeExplorer()
-http_client = Request(CONFIG,log=logs.GetInstance())
 
-
-process_handler = Handler(
-    file_path,
-    workspace_path,
-    filemapper,
-    db_driver,
-    http_client.GetInstance(),
-    model_factory,
-    logs.GetInstance()
-    )
 
 def main():
-
     pass
     # result = http_client.Get(CONFIG["service_host"]+"hello")
     # print(result)
@@ -51,5 +33,22 @@ def main():
 
 
 if __name__ == "__main__":
-
+    
+    config.config.init()
+    file_path =  os.getcwd() + "/bucket/"
+    workspace_path =  os.getcwd() + "/workspace/"
+    model_factory = factory()
+    logs = Logs(log_file=os.getcwd() + "/Logs/logs.txt")
+    db_driver = driver(config.config.CONFIG["database"],logs.GetInstance())
+    filemapper = TreeExplorer()
+    http_client = Request(config.config.CONFIG,log=logs.GetInstance())
+    process_handler = Handler(
+    file_path,
+    workspace_path,
+    filemapper,
+    db_driver,
+    http_client.GetInstance(),
+    model_factory,
+    logs.GetInstance()
+    )
     main()

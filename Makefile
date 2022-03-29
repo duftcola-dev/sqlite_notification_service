@@ -1,7 +1,7 @@
 install:
 
 	python -m venv venv
-	. venv/bin/activate ; pip install robotframework --upgrade pip
+	. venv/bin/activate ; python -m pip install -r requirements.txt --upgrade pip
 	. venv/bin/activate ; pip install requests
 	. venv/bin/activate ; pip install docutils
 	sudo apt install sqlite3

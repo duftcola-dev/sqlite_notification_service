@@ -1,5 +1,5 @@
 import datetime
-
+import json
 class query_model:
     def __init__(self,date,uuid,eventtype,eventdata) -> None:
         self.date = date
@@ -8,7 +8,11 @@ class query_model:
         self.eventdata = eventdata
         
     def get_query(self):
-        return f"INSERT INTO notifications (date,uuid,eventtype,eventdata) VALUES ({self.date},{self.uuid},{self.eventtype},{self.eventdata})"
+        query = (
+            "INSERT INTO notifications (date,uuid,eventtype,eventdata) VALUES (?,?,?,?);",
+            [self.date,self.uuid,self.eventtype,json.dumps(self.eventdata)]
+        )
+        return query
 
 class request_model:
     def __init__(self,event_type,file_name,file_path,new_filepath) -> None:
