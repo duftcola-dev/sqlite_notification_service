@@ -1,4 +1,4 @@
-#!/home/duftcola-dev/Repositories/Modules/sqlite/venv/bin/python
+#!/home/duftcola-dev/Repositories/sqlite_service/venv/bin/python
 
 # $Id: rst2odt.py 5839 2009-01-07 19:09:28Z dkuhlman $
 # Author: Dave Kuhlman <dkuhlman@rexx.com>

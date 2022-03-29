@@ -1,4 +1,4 @@
-#!/home/duftcola-dev/Repositories/Modules/sqlite/venv/bin/python
+#!/home/duftcola-dev/Repositories/sqlite_service/venv/bin/python
 # -*- coding: utf8 -*-
 # :Copyright: © 2015 Günter Milde.
 # :License: Released under the terms of the `2-Clause BSD license`_, in short:

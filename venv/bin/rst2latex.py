@@ -1,4 +1,4 @@
-#!/home/duftcola-dev/Repositories/Modules/sqlite/venv/bin/python
+#!/home/duftcola-dev/Repositories/sqlite_service/venv/bin/python
 
 # $Id: rst2latex.py 5905 2009-04-16 12:04:49Z milde $
 # Author: David Goodger <goodger@python.org>

@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/duftcola-dev/Repositories/Modules/sqlite/venv"
+VIRTUAL_ENV="/home/duftcola-dev/Repositories/sqlite_service/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -43,15 +43,6 @@ class IRequest(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def Put(sefl,url:str,header:dict,data:dict)->dict:
-        """
-        Method uses : url , header , data args
-
-        Put method ,requires data as dictionary. If data is not providad or data is not a dict the 
-        method returns False. This method accepts an optional header as a dict
-        """
-        raise NotImplementedError
 
     @abc.abstractstaticmethod
     def GetInstance(self):

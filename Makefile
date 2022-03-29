@@ -6,7 +6,8 @@ install:
 	. venv/bin/activate ; pip install docutils
 	sudo apt install sqlite3
 	cd ./services ; docker build -t flask_bluerint:latest .
-	sqlite3 mydatabase.db ".read init.sql"
+	- sqlite3 mydatabase.db ".read init.sql"
+	
 	
 run:
 
@@ -27,7 +28,11 @@ show:
 
 flush:
 
-	docker rm flask_blueprint_service
-	docker rmi flask_bluerint:latest
+	- docker rm flask_blueprint_service
+	- docker rmi flask_bluerint:latest
 
-	
+test:
+
+	- rm ./testdatabase.db
+	sqlite3 testdatabase.db ".read init.sql"
+	python test.py

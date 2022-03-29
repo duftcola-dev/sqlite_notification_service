@@ -1,4 +1,4 @@
-#!/home/duftcola-dev/Repositories/Modules/sqlite/venv/bin/python
+#!/home/duftcola-dev/Repositories/sqlite_service/venv/bin/python
 
 # Author:
 # Contact: grubert@users.sf.net

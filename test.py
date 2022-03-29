@@ -1,20 +1,36 @@
 import os 
+import requests
 from utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
-from utils.utils import get_header_content
+from models.model_factory import  factory
 from utils.RequestModule.Request import Request
 from config.config import config as CONFIG
+from utils.LogsModule.Logs import Logs
+from utils.ProcessHandler.Handler import Handler
+from utils.drivers.db_driver import driver
 import unittest
 
 
 class test_file_mapping(unittest.TestCase):
 
     client = Request(configuration=CONFIG)
-    files_path = os.getcwd()+"/files/"
-    workplace_path = os.getcwd()+"/workplace/"
+    files_path = os.getcwd()+"/bucket/"
+    workplace_path = os.getcwd()+"/workspace/"
+    model_factory = factory()
     file_mapper = TreeExplorer()
+    logs = Logs(log_file=os.getcwd() + "/Logs/logs.txt")
+    db_driver = driver("testdatabase.db",logs.GetInstance())
+    process_handler = Handler(
+        files_path,
+        workplace_path,
+        file_mapper,
+        db_driver,
+        client.GetInstance(),
+        model_factory,
+        logs.GetInstance()
+    )
 
     def test_service_status(self):
-        result = self.client.Get(CONFIG["service_host"]+"status")
+        result = self.client.Get(CONFIG["service_host"]+CONFIG["endpoints"]["status"])
         self.assertTrue(result["OK"]==1,"Remote service is down")
 
     def test_create_test_files(self):
@@ -29,21 +45,26 @@ class test_file_mapping(unittest.TestCase):
         new_files = self.file_mapper.GetFilesDict()
         self.assertTrue(type(new_files) is dict,"Failed to map files")
 
-    def test_get_files_header_content(self):
-        self.file_mapper.ExploreDirectories(path=self.files_path)
-        files_list=self.file_mapper.GetFilesDict()
-        for files in files_list:
-            header,content = get_header_content(files_list[files])
-            header = header.upper()
-
-            os.remove(files_list[files])
-
-            file = open(self.workplace_path+files,"a")
-            file.write(header)
-            file.writelines(content)
-            file.close()
-        
-    def 
+    def test_request_response(self):
+        request_model = self.model_factory.create_request_model("Filereceived","testfile.txt","/somepath/","somenewpath/")
+        data= request_model
+        headers = {'Content-Type': 'application/json'}
+        result = self.client.Post(CONFIG["service_host"]+CONFIG["endpoints"]["notifications"],data,header=headers)
+        self.assertTrue(type(result) is dict,"Remote service no responding")
+        self.assertTrue(result.get("date")!= None,"Missing param date")
+        self.assertTrue(result.get("uuid")!= None,"Missing param uuid")
+        self.assertTrue(result.get("event-type")!= None,"Missing param event-type")
+        self.assertTrue(result.get("event-data")!= None,"Missing param event-data")
+        query = self.model_factory.create_query_model(
+            result.get("date"),
+            result.get("uuid"),
+            result.get("event-type"),
+            result.get("event-data")
+            )
+        self.assertTrue(type(query) is str,"Failed to create query")
+       
+    def test_main_process(self):
+        pass
 
 
 if __name__ == "__main__":

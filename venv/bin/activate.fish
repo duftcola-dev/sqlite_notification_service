@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/duftcola-dev/Repositories/Modules/sqlite/venv"
+set -gx VIRTUAL_ENV "/home/duftcola-dev/Repositories/sqlite_service/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

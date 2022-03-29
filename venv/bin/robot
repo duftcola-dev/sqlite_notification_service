@@ -1,4 +1,4 @@
-#!/home/duftcola-dev/Repositories/Modules/sqlite/venv/bin/python
+#!/home/duftcola-dev/Repositories/sqlite_service/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

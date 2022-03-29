@@ -1,4 +1,5 @@
 import requests
+import json
 from typing import Optional,Tuple
 from requests import HTTPError
 from json import JSONDecodeError
@@ -95,16 +96,11 @@ class Request(IRequest):
         return self.__ResponseHandler(response)
 
 
-    def Post(self,url:str,data : dict, header : Optional[dict] = None, params : Optional[dict] = None)->dict:
-
-        response=self.__POST(url,data = data, header = header, params = params)
+    def Post(self,url:str,data : dict, header : Optional[dict] = None)->dict:
+        data = json.dumps(data)
+        response=self.__POST(url,data = data, header = header)
         return self.__ResponseHandler(response)
 
-
-    def Put(self,url:str, header:Optional[dict] = None, params:Optional[dict] = None, data:Optional[dict] = None)->dict:
-
-        response=self.__PUT(url,header=header,params=params,data=data)
-        return self.__ResponseHandler(response)
 
 
 
@@ -146,23 +142,14 @@ class Request(IRequest):
 
 
 
-    def __POST(self,url:str, data:dict = None, header:dict = None, params:dict = None):
+    def __POST(self,url:str, data:dict = None, header:dict = None):
 
         response=""
         self.__LogMessage("info",f" request : headers:{header} | uri: {url} | params : {data}")
-        response=requests.post(url,data = data, json = data ,params = params, headers= header)
+        response=requests.post(url,data = data, json = data , headers= header)
 
         return response
 
-
-
-
-    def __PUT(self,url:str, header:dict = None, params:dict = None, data:dict = None):
-
-        self.__LogMessage("info",f" request : headers:{header} | uri: {url} | params : {params} | data: {data}")
-        response=requests.put(url,headers=header,params=params,data=data)
-
-        return response
 
 
 

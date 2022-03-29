@@ -1,10 +1,8 @@
-CREATE TABLE user(
+CREATE TABLE notifications(
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name varchar(30) NOT NULL,
-    email varchar(40) NOT NULL 
+    date DATETIME NOT NULL,
+    uuid varchar(50) NOT NULL,
+    eventtype varchar(20) NOT NULL,
+    eventdata JSON NOT NULL
 );
 
-INSERT INTO user (name,email) VALUES ("test","test@gmail.com");
-INSERT INTO user (name,email) VALUES ("test1","test1@gmail.com");
-INSERT INTO user (name,email) VALUES ("test2","test3@gmail.com");
-INSERT INTO user (name,email) VALUES ("test3","test3@gmail.com");
