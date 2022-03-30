@@ -2,57 +2,39 @@ import json
 import os
 import config.config as conf
 import shutil
-import asyncio
+import pandas
 
 class Handler:
 
-    def __init__(self,files_path:str,workspace_path:str,filemapper:object,
+    def __init__(self,files_path:str,workspace_path:str,processed_path:str,filemapper:object,
     db_driver:object,client:object,models:object,logs = None) -> None:
         self.file_path = files_path
         self.workspace_path  = workspace_path
         self.filemapper = filemapper
+        self.processed_path = processed_path
         self.db_driver = db_driver
         self.logs = logs
         self.client = client
         self.models = models
 
-
-
-    async def move_files(self):
+    async def move_files(self,files_list:dict):
         try:
             self.db_driver.connect()
-            files_list=await self.map_files(self.file_path)
             for files in files_list:
                 shutil.move(files_list[files],self.workspace_path+files)
                 await self.create_notification(files_list[files],self.workspace_path+files,files)
             self.log_message("info","files relocated")
             self.db_driver.close()
-
         except Exception as err:
             self.log_message("error",err)
 
+    async def process_files(self,files_list:dict):
+        for files in files_list:
+            file_context=pandas.read_csv(files_list[files])
+            headers = file_context.info()
 
-    # async def process_files(self):
-    #     self.filemapper.ExploreDirectories(path=self.workspace_path)
-    #     header,content = self.get_header_content(files_list[files])
 
-
-    # def get_header_content(self,path:str):
-    #     file = open(path,"r")
-    #     line = file.readline()
-    #     line = line.upper()
-    #     content =file.readlines()[0:]
-    #     file.close()
-    #     return line,content
-
-    # def relocate_file(self,path,header,content):
-    #     self.new_files_location.append(path)
-    #     file = open(path,"a")
-    #     file.write(header)
-    #     file.writelines(content)
-    #     file.close()
-
-    async def map_files(self,path:str):
+    async def map_files(self,path:str)->dict:
         self.filemapper.ExploreDirectories(path=path)
         self.log_message("info","fetching files")
         return  self.filemapper.GetFilesDict()
