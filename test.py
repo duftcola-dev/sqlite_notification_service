@@ -38,58 +38,58 @@ class test_file_mapping(unittest.TestCase):
         logs.GetInstance()
     )
 
-    # def test_service_status(self):
-    #     result = self.client.Get(CONFIG["service_host"]+CONFIG["endpoints"]["status"])
-    #     self.assertTrue(result["OK"]==1,"Remote service is down")
+    def test_service_status(self):
+        result = self.client.Get(CONFIG["service_host"]+CONFIG["endpoints"]["status"])
+        self.assertTrue(result["OK"]==1,"Remote service is down")
 
-    # def test_create_test_files(self):
-    #     self.file_mapper.ExploreDirectories(self.samples)
-    #     files = self.file_mapper.GetFilesDict()
-    #     self.assertTrue(type(files) is dict,"Failed to copy files")
-    #     for file in files:
-    #         shutil.copy(files[file],self.bucket_path+file)
+    def test_create_test_files(self):
+        self.file_mapper.ExploreDirectories(self.samples)
+        files = self.file_mapper.GetFilesDict()
+        self.assertTrue(type(files) is dict,"Failed to copy files")
+        for file in files:
+            shutil.copy(files[file],self.bucket_path+file)
 
-    # def test_map_files(self):
-    #     self.file_mapper.ExploreDirectories(path=self.bucket_path)
-    #     new_files = self.file_mapper.GetFilesDict()
-    #     self.assertTrue(type(new_files) is dict,"Failed to map files")
+    def test_map_files(self):
+        self.file_mapper.ExploreDirectories(path=self.bucket_path)
+        new_files = self.file_mapper.GetFilesDict()
+        self.assertTrue(type(new_files) is dict,"Failed to map files")
 
-    # def test_request_response(self):
-    #     request_model = self.model_factory.create_request_model("Filereceived","testfile.txt","/somepath/","somenewpath/")
-    #     data= request_model
-    #     headers = {'Content-Type': 'application/json'}
-    #     result = self.client.Post(CONFIG["service_host"]+CONFIG["endpoints"]["notifications"],data,header=headers)
-    #     self.assertTrue(type(result) is dict,"Remote service no responding")
-    #     self.assertTrue(result.get("date")!= None,"Missing param date")
-    #     self.assertTrue(result.get("uuid")!= None,"Missing param uuid")
-    #     self.assertTrue(result.get("event-type")!= None,"Missing param event-type")
-    #     self.assertTrue(result.get("event-data")!= None,"Missing param event-data")
-    #     query = self.model_factory.create_query_model(
-    #         result.get("date"),
-    #         result.get("uuid"),
-    #         result.get("event-type"),
-    #         result.get("event-data")
-    #         )
-    #     self.assertTrue(isinstance(query,tuple),"Failed to create query")
+    def test_request_response(self):
+        request_model = self.model_factory.create_request_model("Filereceived","testfile.txt","/somepath/","somenewpath/")
+        data= request_model
+        headers = {'Content-Type': 'application/json'}
+        result = self.client.Post(CONFIG["service_host"]+CONFIG["endpoints"]["notifications"],data,header=headers)
+        self.assertTrue(type(result) is dict,"Remote service no responding")
+        self.assertTrue(result.get("date")!= None,"Missing param date")
+        self.assertTrue(result.get("uuid")!= None,"Missing param uuid")
+        self.assertTrue(result.get("event-type")!= None,"Missing param event-type")
+        self.assertTrue(result.get("event-data")!= None,"Missing param event-data")
+        query = self.model_factory.create_query_model(
+            result.get("date"),
+            result.get("uuid"),
+            result.get("event-type"),
+            result.get("event-data")
+            )
+        self.assertTrue(isinstance(query,tuple),"Failed to create query")
 
-    # def test_database(self):
-    #     query = (
-    #         "INSERT INTO notifications (date,uuid,eventtype,eventdata) VALUES (?,?,?,?)",
-    #         [
-    #             2022329215613,
-    #             "b201cfe0-da50-4243-b317-88a2150c037a",
-    #             "FILERECEIVED",
-    #             json.dumps({'filename': 'test3.txt', 
-    #             'filepath': '/home/duftcola-dev/Repositories/sqlite_service/bucket/test3.txt', 
-    #             'moved-to': '/home/duftcola-dev/Repositories/sqlite_service/workspace/test3.txt', 
-    #             'received-timestamp': 2022329215613
-    #             })
-    #         ]
-    #     )
-    #     test_driver = driver(CONFIG["testdatabase"])
-    #     test_driver.connect()
-    #     test_driver.insert(query)
-    #     test_driver.close()
+    def test_database(self):
+        query = (
+            "INSERT INTO notifications (date,uuid,eventtype,eventdata) VALUES (?,?,?,?)",
+            [
+                2022329215613,
+                "b201cfe0-da50-4243-b317-88a2150c037a",
+                "FILERECEIVED",
+                json.dumps({'filename': 'test3.txt', 
+                'filepath': '/home/duftcola-dev/Repositories/sqlite_service/bucket/test3.txt', 
+                'moved-to': '/home/duftcola-dev/Repositories/sqlite_service/workspace/test3.txt', 
+                'received-timestamp': 2022329215613
+                })
+            ]
+        )
+        test_driver = driver(CONFIG["testdatabase"])
+        test_driver.connect()
+        test_driver.insert(query)
+        test_driver.close()
     
     def test_na_detection(self):
         path  = os.getcwd() + "/samples/missing_values.csv"
@@ -106,26 +106,31 @@ class test_file_mapping(unittest.TestCase):
         #send message
         pandas.DataFrame.to_csv(new_ds,path2,index=False)
     
+    async def test_main_process(self):
+        files_list = await self.process_handler.map_files(self.process_handler.file_path)
+        asyncio.run(self.process_handler.move_files(files_list))
         
+    def test_clean_test_environ(self):
+        self.file_mapper.ExploreDirectories(path=self.bucket_path)
+        bucked = self.file_mapper.GetFilesDict()
+        self.file_mapper.ExploreDirectories(path=self.workplace_path)
+        work = self.file_mapper.GetFilesDict()
+        self.file_mapper.ExploreDirectories(path=self.samples)
+        samples = self.file_mapper.GetFilesDict()
+        self.file_mapper.ExploreDirectories(path=self.processed_path)
+        processed = self.file_mapper.GetFilesDict()
+        sample_keys = samples.keys()
+        print(sample_keys)
+        for b in bucked:
+            if b in sample_keys:
+                os.remove(bucked[b])
+        for w in work:
+            if w in sample_keys:
+                os.remove(work[w])
+        for p in processed:
+            if p in sample_keys:
+                os.remove(processed[w])
         
-    # async def test_main_process(self):
-    #     files_list = await self.process_handler.map_files(self.process_handler.file_path)
-    #     asyncio.run(self.process_handler.move_files(files_list))
-        
-    # def test_clean_test_environ(self):
-    #     self.file_mapper.ExploreDirectories(path=self.bucket_path)
-    #     bucked = self.file_mapper.GetFilesDict()
-    #     self.file_mapper.ExploreDirectories(path=self.workplace_path)
-    #     work = self.file_mapper.GetFilesDict()
-    #     self.file_mapper.ExploreDirectories(path=self.samples)
-    #     samples = self.file_mapper.GetFilesDict()
-    #     sample_keys = samples.keys()
-    #     print(sample_keys)
-    #     for b,w in zip(bucked,work):
-    #         if b in sample_keys:
-    #             os.remove(bucked[b])
-    #         if w in sample_keys:
-    #             os.remove(work[w])
 
 
 if __name__ == "__main__":
