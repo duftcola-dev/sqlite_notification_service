@@ -35,13 +35,15 @@ def main():
 if __name__ == "__main__":
     
     config.config.init()
+    global CONFIG 
+    CONFIG = config.config.CONFIG
     file_path =  os.getcwd() + "/bucket/"
     workspace_path =  os.getcwd() + "/workspace/"
     model_factory = factory()
     logs = Logs(log_file=os.getcwd() + "/Logs/logs.txt")
-    db_driver = driver(config.config.CONFIG["database"],logs.GetInstance())
+    db_driver = driver(CONFIG["database"],logs.GetInstance())
     filemapper = TreeExplorer()
-    http_client = Request(config.config.CONFIG,log=logs.GetInstance())
+    http_client = Request(CONFIG,log=logs.GetInstance())
     process_handler = Handler(
     file_path,
     workspace_path,

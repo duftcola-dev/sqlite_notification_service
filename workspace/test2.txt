@@ -1,0 +1,7 @@
+MODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gtsMODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gtsMODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gtsMODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gtsMODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gtsMODEL,CATEGORY,PP,TRANSMISSION,COLL,PRICE,HP,LBS,KG/KW,IMG_URL
+Abarth 1500 Biposto Bertone B.A.T 1 '52,Categories unknown,PP ??,FR,?? pts,?? Cr,72,1918.0,12.08 Kg/Hp,https://www.kudosprime.com//gts/images/cars/gts_car_244.jpg?v=gts

@@ -13,11 +13,11 @@ class driver:
     def insert(self,query):
         cursor = self.__get_cursor()
         result = cursor.execute(query[0],query[1])
-        self.__con.commit()
+        self.save()
         return result
  
-    def select_all(self,query):
-        pass
+    def save(self):
+        self.__con.commit()
 
     def connect(self):
         try:
