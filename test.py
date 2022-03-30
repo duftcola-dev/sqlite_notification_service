@@ -10,6 +10,7 @@ from utils.drivers.db_driver import driver
 config.config.init()
 CONFIG = config.config.CONFIG
 import unittest
+import asyncio
 
 
 class test_file_mapping(unittest.TestCase):
@@ -47,16 +48,6 @@ class test_file_mapping(unittest.TestCase):
         new_files = self.file_mapper.GetFilesDict()
         self.assertTrue(type(new_files) is dict,"Failed to map files")
 
-    def test_file_content_transfer(self):
-        self.file_mapper.ExploreDirectories(path=self.files_path)
-        new_files = self.file_mapper.GetFilesDict()
-        head = None
-        body = None
-        for file in new_files:
-            head , body = self.process_handler.get_header_content(new_files[file])
-            break
-        self.assertTrue(type(head) is str,"Failed to get file header")
-        self.assertTrue(type(body) is list,"Failed to get file body")
 
     def test_request_response(self):
         request_model = self.model_factory.create_request_model("Filereceived","testfile.txt","/somepath/","somenewpath/")
@@ -96,9 +87,8 @@ class test_file_mapping(unittest.TestCase):
         test_driver.close()
         
     def test_main_process(self):
-        new_location = self.process_handler.move_files()
-        self.assertTrue(type(new_location) is list,"Failed to relocate files")
-        self.assertGreater(len(new_location),0, "Failed to fetch files")
+        asyncio.run(self.process_handler.move_files())
+        
         
 
 
