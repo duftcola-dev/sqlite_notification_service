@@ -45,6 +45,51 @@ class request_model:
         s=f"{year}{month}{day}{hour}{minute}{second}"
         return int(s)
 
+class alert_model:
+    
+    def __init__(self,event,old_path) -> None:
+        self.event  = event 
+        self.old_path = old_path
+    
+    def get_schema(self):
+        schema = {
+            "event-type" : self.event,
+            "event-data" : {
+                "filepath" : self.old_path,
+                "received-timestamp"  : self.__get_int_date()
+            }
+        }
+        return schema
+        
+    def __get_int_date(self)->int:
+        date = datetime.datetime.now()
+        year = date.year
+        month = date.month
+        day = date.day
+        hour = date.hour
+        minute = date.minute
+        second = date.second
+
+        s=f"{year}{month}{day}{hour}{minute}{second}"
+        return int(s)
+
+class medatdata_model:
+
+    def __init__(self,init_time,changes,info) -> None:
+        self.init_time = str(init_time),
+        self.end_time = str(datetime.datetime.now())
+        self.changes = changes
+        self.info = info
+
+    def get_schema(self):
+        schema = {
+            "task_start_time":self.init_time,
+            "task_end_time":self.end_time,
+            "changes":self.changes,
+            "original_file_info":self.info
+        }
+        return schema
+
 class factory:
     
     def __init__(self) -> None:
@@ -55,3 +100,9 @@ class factory:
 
     def create_query_model(self,date,uuid,eventtype,eventdata):
         return query_model(date,uuid,eventtype,eventdata).get_query()
+
+    def create_alert_model(self,event,old_path):
+        return alert_model(event,old_path).get_schema()
+
+    def create_metadata_registry(self,init_time,changes,info):
+        return medatdata_model(init_time,changes,info).get_schema()

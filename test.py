@@ -16,12 +16,13 @@ import asyncio
 import pandas
 
 
-class test_file_mapping(unittest.TestCase):
+class monolitic_test(unittest.TestCase):
 
     client = Request(configuration=CONFIG)
     bucket_path = os.getcwd()+"/bucket/"
     workplace_path = os.getcwd()+"/workspace/"
     processed_path = os.getcwd()+"/processed_data/"
+    metadata_path = os.getcwd()+"/metadata/"
     samples = os.getcwd()+"/samples/"
     model_factory = factory()
     file_mapper = TreeExplorer()
@@ -31,6 +32,7 @@ class test_file_mapping(unittest.TestCase):
         bucket_path,
         workplace_path,
         processed_path,
+        metadata_path,
         file_mapper,
         db_driver,
         client.GetInstance(),
@@ -38,23 +40,14 @@ class test_file_mapping(unittest.TestCase):
         logs.GetInstance()
     )
 
-    def test_service_status(self):
+ 
+    def test_backend_service(self):
+        print("---------->TESTING BACKEND STATUS")
         result = self.client.Get(CONFIG["service_host"]+CONFIG["endpoints"]["status"])
         self.assertTrue(result["OK"]==1,"Remote service is down")
 
-    def test_create_test_files(self):
-        self.file_mapper.ExploreDirectories(self.samples)
-        files = self.file_mapper.GetFilesDict()
-        self.assertTrue(type(files) is dict,"Failed to copy files")
-        for file in files:
-            shutil.copy(files[file],self.bucket_path+file)
-
-    def test_map_files(self):
-        self.file_mapper.ExploreDirectories(path=self.bucket_path)
-        new_files = self.file_mapper.GetFilesDict()
-        self.assertTrue(type(new_files) is dict,"Failed to map files")
-
-    def test_request_response(self):
+    def test_database_service(self):
+        print("---------->TESTING DATABASE SERVICE + BACKEND")
         request_model = self.model_factory.create_request_model("Filereceived","testfile.txt","/somepath/","somenewpath/")
         data= request_model
         headers = {'Content-Type': 'application/json'}
@@ -71,8 +64,6 @@ class test_file_mapping(unittest.TestCase):
             result.get("event-data")
             )
         self.assertTrue(isinstance(query,tuple),"Failed to create query")
-
-    def test_database(self):
         query = (
             "INSERT INTO notifications (date,uuid,eventtype,eventdata) VALUES (?,?,?,?)",
             [
@@ -90,10 +81,23 @@ class test_file_mapping(unittest.TestCase):
         test_driver.connect()
         test_driver.insert(query)
         test_driver.close()
-    
-    def test_na_detection(self):
-        path  = os.getcwd() + "/samples/missing_values.csv"
-        path2 = os.getcwd() + "/processed_data/missing_values.csv"
+
+    def test_main_process(self): 
+        print("---------->TESTING MAIN PROCESS ++ MONO-TEST ++")
+        print("---------->CREATION OF SAMPLE FILES")
+        self.file_mapper.ExploreDirectories(self.samples)
+        files = self.file_mapper.GetFilesDict()
+        self.assertTrue(type(files) is dict,"Failed to copy files")
+        for file in files:
+            shutil.copy(files[file],self.bucket_path+file)
+            shutil.copy(files[file],self.workplace_path+file)
+        self.file_mapper.ExploreDirectories(path=self.bucket_path)
+        new_files = self.file_mapper.GetFilesDict()
+        self.assertTrue(type(new_files) is dict,"Failed to map files")
+
+        print("----------->BASIC POSTPROCESS")
+        path  = os.getcwd() + "/samples/20220327 annual-number-of-deaths-by-cause.csv"
+        path2 = os.getcwd() + "/processed_data/20220327 annual-number-of-deaths-by-cause.csv.csv"
         file = open(path2,"w")
         file.write("")
         file.close()
@@ -105,32 +109,57 @@ class test_file_mapping(unittest.TestCase):
         self.assertNotEqual(len(ds),len(new_ds),"files are different, but no difference was detected")
         #send message
         pandas.DataFrame.to_csv(new_ds,path2,index=False)
-    
-    async def test_main_process(self):
-        files_list = await self.process_handler.map_files(self.process_handler.file_path)
-        asyncio.run(self.process_handler.move_files(files_list))
-        
-    def test_clean_test_environ(self):
+        ds = None
+        new_ds=None
+        os.remove(path2)
+
+        print("------------>POSTPROCESS IN LOOP")
+        self.file_mapper.ExploreDirectories(path=self.workplace_path)
+        files = self.file_mapper.GetFilesDict()
+        for file in files:
+            path = str(files[file])
+            ds = pandas.read_csv(path,lineterminator='\n')
+            new_ds = ds.dropna()
+            top = new_ds.head(0)
+            for item in top:
+                new_ds.rename(columns={item:str(item).upper()},inplace=True)
+            pandas.DataFrame.to_csv(new_ds,self.processed_path+file,index=False)
+            ds = None
+            new_ds = None
+        self.file_mapper.ExploreDirectories(path=self.workplace_path)
+        processed_files = self.file_mapper.GetFilesDict()
+        self.assertTrue(isinstance(processed_files,dict),"Failed to postprocess files" )
+
+        print("--------->TEST MAIN CLASS MAIN FULL PROCESS")
+        self.process_handler.move_files()
+        self.process_handler.process_files()
+
+        print("+++++++++ CLEANING THE MESS +++++++++++++")
         self.file_mapper.ExploreDirectories(path=self.bucket_path)
         bucked = self.file_mapper.GetFilesDict()
         self.file_mapper.ExploreDirectories(path=self.workplace_path)
         work = self.file_mapper.GetFilesDict()
-        self.file_mapper.ExploreDirectories(path=self.samples)
-        samples = self.file_mapper.GetFilesDict()
         self.file_mapper.ExploreDirectories(path=self.processed_path)
         processed = self.file_mapper.GetFilesDict()
-        sample_keys = samples.keys()
-        print(sample_keys)
+        self.file_mapper.ExploreDirectories(path=self.metadata_path)
+        metadata_files = self.file_mapper.GetFilesDict()
+        self.file_mapper.ExploreDirectories(path=self.samples)
+        samples = self.file_mapper.GetFilesDict()
+       
         for b in bucked:
-            if b in sample_keys:
+            if b in list(samples.keys()):
                 os.remove(bucked[b])
         for w in work:
-            if w in sample_keys:
+            if w in list(samples.keys()):
                 os.remove(work[w])
         for p in processed:
-            if p in sample_keys:
-                os.remove(processed[w])
-        
+            if p in list(samples.keys()):
+                os.remove(processed[p])
+        for jm in metadata_files:
+            for s in list(samples.keys()):
+                if jm == s+".json":
+                    os.remove(str(metadata_files[jm]))
+        print("+++++++++ TEST COMPLETED +++++++++++++")
 
 
 if __name__ == "__main__":

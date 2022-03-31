@@ -1,4 +1,4 @@
-
+import datetime
 from flask import Flask,make_response,request
 from model_factory import factory
 model_factory = factory()
@@ -17,7 +17,10 @@ def notification():
     if request.json.get("event-type") == None or request.json.get("event-data") == None:
         response = make_response({"error":"Bad request , missing payload"},400)
     else:
-        response_model = model_factory.create_response_model(request.json["event-type"],request.json["event-data"])
+        event_type  = request.json["event-type"]
+        event_data = request.json["event-data"]
+        print(f"{datetime.datetime.now()} | {request.url} | {event_type}")
+        response_model = model_factory.create_response_model(event_type,event_data)
         response = make_response(response_model,200)
         response.headers["Content-type"]="json"
     return response
