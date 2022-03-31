@@ -12,8 +12,8 @@ from utils.ProcessHandler.Handler import Handler
 
 def main(handler:Handler):
     
-    handler.move_files()
-    handler.process_files()
+    asyncio.get_event_loop().run_until_complete(handler.move_files())
+    asyncio.get_event_loop().run_until_complete(handler.process_files())
 
 
     

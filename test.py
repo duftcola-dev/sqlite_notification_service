@@ -131,8 +131,8 @@ class monolitic_test(unittest.TestCase):
         self.assertTrue(isinstance(processed_files,dict),"Failed to postprocess files" )
 
         print("--------->TEST MAIN CLASS MAIN FULL PROCESS")
-        self.process_handler.move_files()
-        self.process_handler.process_files()
+        asyncio.get_event_loop().run_until_complete(self.process_handler.move_files())
+        asyncio.get_event_loop().run_until_complete(self.process_handler.process_files())
 
         print("+++++++++ CLEANING THE MESS +++++++++++++")
         self.file_mapper.ExploreDirectories(path=self.bucket_path)

@@ -5,6 +5,7 @@ import io
 import config.config as conf
 import shutil
 import pandas
+import asyncio
 
 class Handler:
 
@@ -20,52 +21,65 @@ class Handler:
         self.client = client
         self.models = models
 
-    def move_files(self):
+    async def move_files(self):
         files_list = self.map_files(self.file_path)
         try:
             self.db_driver.connect()
+            tasks = []
             for files in files_list:
-                shutil.move(files_list[files],self.workspace_path+files)
-                query = self.create_notification("FILERECEIVED",files_list[files],self.workspace_path+files,files)
-                self.save_notification(query)
+                task1 = asyncio.ensure_future(self.move(files_list[files],self.workspace_path+files))
+                task2 = asyncio.ensure_future(self.create_notification("FILERECEIVED",files_list[files],self.workspace_path+files,files)) 
+                tasks.append(task1) 
+                tasks.append(task2) 
+            await asyncio.gather(*tasks,return_exceptions=True)
             self.log_message("info","files relocated")
             self.db_driver.close()
         except Exception as err:
             self.log_message("error",err)
             self.db_driver.close()
 
-    def process_files(self):
-        self.log_message("info","post-processing")
-        files_list = self.map_files(self.workspace_path)
-        for files in files_list:
-            init_time = datetime.datetime.now()
-            ds = pandas.read_csv(files_list[files],lineterminator='\n')
-            self.quick_make_file(files_list[files])
-            new_ds = ds.dropna()
-            new_ds = self.upper_case_head(new_ds)
-            info = self.format_dataframe_info(new_ds)
-            changes = abs(len(ds) - len(new_ds))
-            if changes != 0:
-                self.create_alert("MISSINGDATA",files_list[files])
-            pandas.DataFrame.to_csv(new_ds,self.processed_path+files,index=False)
-            self.create_notification("FILEPROCESSED",files_list[files],self.processed_path+files,files)
-            self.save_metadata(files,init_time,changes,info)
-        self.log_message("info","post-process completed")
-        
+    async def process_files(self):
+        try:
+            self.log_message("info","post-processing")
+            files_list = self.map_files(self.workspace_path)
+            tasks = []
+            for files in files_list:
+                task1 = asyncio.ensure_future(self.fetch_csv_data(files,files_list))
+                task2 = asyncio.ensure_future(self.create_notification("FILEPROCESSED",files_list[files],self.processed_path+files,files))
+                tasks.append(task1)
+                tasks.append(task2)
+            await asyncio.gather(*tasks,return_exceptions=True)
+            self.log_message("info","post-process completed")
+        except Exception as err:
+            self.log_message("error",err)
+
+    async def fetch_csv_data(self,files,files_list):
+        init_time = datetime.datetime.now()
+        ds = pandas.read_csv(files_list[files],lineterminator='\n')
+        self.quick_make_file(files_list[files])
+        new_ds = ds.dropna()
+        new_ds = self.upper_case_head(new_ds)
+        info = self.format_dataframe_info(new_ds)
+        changes = abs(len(ds) - len(new_ds))
+        pandas.DataFrame.to_csv(new_ds,self.processed_path+files,index=False)
+        self.save_metadata(files,init_time,changes,info)
+        if changes != 0:
+            await self.create_alert("MISSINGDATA",files_list[files])
 
     def map_files(self,path:str)->dict:
         self.log_message("info",f"fetching files : {path}")
         self.filemapper.ExploreDirectories(path=path)
         return  self.filemapper.GetFilesDict()
             
-    def create_notification(self,event:str,old_path:str,new_path:str,files):
+    async def create_notification(self,event:str,old_path:str,new_path:str,files):
         new_schema = self.models.create_request_model(event,files,old_path,new_path+files)
         response = self.send_notification(conf.CONFIG["endpoints"]["notifications"],new_schema)
         query = self.create_query(response)
+        if event == "FILERECEIVED":
+            self.save_notification(query)
         return query
-        
 
-    def create_alert(self,event:str,old_path:str):
+    async def create_alert(self,event:str,old_path:str):
         new_schema = self.models.create_alert_model(event,old_path)
         self.send_notification(conf.CONFIG["endpoints"]["notifications"],new_schema)
 
@@ -111,3 +125,6 @@ class Handler:
         dataframe_info.info(buf=buffer)
         string = buffer.getvalue()
         return string
+
+    async def move(self,old_path,new_path):
+        shutil.move(old_path,new_path)
