@@ -1,13 +1,15 @@
 FROM python:3.9.10-bullseye
 
-RUN mkdir -p /home/app
+WORKDIR /.
 
-COPY . /home/app
+COPY . .
 
 RUN pip install flask --upgrade pip
+RUN pip install redis
+RUN pip install aioflask
 
 EXPOSE 5000
 
 ENTRYPOINT [ "python" ]
 
-CMD ["/home/app/main.py"]
+CMD ["main.py"]

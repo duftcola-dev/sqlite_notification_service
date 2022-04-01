@@ -1,0 +1,31 @@
+version: '3.3'
+
+networks:
+  services_network:
+    name: services_network
+  default:
+    name: default_network
+
+services:
+    flask:
+      image: flask_blueprint:latest
+      container_name: flask_blueprint_service
+      ports:
+        - 5000:5000
+      networks:
+        - services_network
+        
+    redis:
+      image: redis:latest
+      command: redis-server --save 1 60 --loglevel warning --requirepass root
+      container_name : redis_service
+      ports:
+        - 6379:6379
+      volumes:
+        - chache:/data 
+      networks:
+        - services_network
+
+volumes:
+  chache:
+    driver: local

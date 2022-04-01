@@ -1,13 +1,13 @@
 from cgitb import handler
 import os
-import config.config
+import app.config.config
 import asyncio
-from utils.LogsModule.Logs import Logs
-from utils.drivers.db_driver import driver
-from utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
-from utils.RequestModule.Request import Request
-from models.model_factory import factory
-from utils.ProcessHandler.Handler import Handler
+from app.utils.LogsModule.Logs import Logs
+from app.utils.drivers.db_driver import driver
+from app.utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
+from app.utils.RequestModule.Request import Request
+from app.models.model_factory import factory
+from app.utils.ProcessHandler.Handler import Handler
 
 
 def main(handler:Handler):
@@ -24,9 +24,9 @@ def main(handler:Handler):
 
 if __name__ == "__main__":
     
-    config.config.init()
+    app.config.config.init()
     global CONFIG 
-    CONFIG = config.config.CONFIG
+    CONFIG = app.config.config.CONFIG
     file_path =  os.getcwd() + "/bucket/"
     workspace_path =  os.getcwd() + "/workspace/"
     processed_path =  os.getcwd() + "/processed_data/"

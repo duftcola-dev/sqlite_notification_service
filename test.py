@@ -1,20 +1,21 @@
 import os
 import json
 from random import sample
-import config.config 
+import app.config.config 
 import shutil
-from utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
-from models.model_factory import  factory
-from utils.RequestModule.Request import Request
-from utils.LogsModule.Logs import Logs
-from utils.ProcessHandler.Handler import Handler
-from utils.drivers.db_driver import driver
-config.config.init()
-CONFIG = config.config.CONFIG
+from app.utils.Filemapper.DirectoryTreeGenerator import TreeExplorer
+from app.models.model_factory import  factory
+from app.utils.RequestModule.Request import Request
+from app.utils.LogsModule.Logs import Logs
+from app.utils.ProcessHandler.Handler import Handler
+from app.utils.drivers.db_driver import driver
+app.config.config.init()
+CONFIG = app.config.config.CONFIG
 import unittest
 import asyncio
 import pandas
-
+import redis
+import uuid
 
 class monolitic_test(unittest.TestCase):
 
@@ -40,7 +41,6 @@ class monolitic_test(unittest.TestCase):
         logs.GetInstance()
     )
 
- 
     def test_backend_service(self):
         print("---------->TESTING BACKEND STATUS")
         result = self.client.Get(CONFIG["service_host"]+CONFIG["endpoints"]["status"])
@@ -85,6 +85,11 @@ class monolitic_test(unittest.TestCase):
     def test_main_process(self): 
         print("---------->TESTING MAIN PROCESS ++ MONO-TEST ++")
         print("---------->CREATION OF SAMPLE FILES")
+
+        self.file_mapper.ExploreDirectories(self.bucket_path)
+        files = self.file_mapper.GetFilesDict()
+        self.assertEqual(files,{},"Mapper failed to map empty folder ")
+
         self.file_mapper.ExploreDirectories(self.samples)
         files = self.file_mapper.GetFilesDict()
         self.assertTrue(type(files) is dict,"Failed to copy files")

@@ -1,0 +1,8 @@
+{
+    "task_start_time": [
+        "2022-04-01 21:30:53.926515"
+    ],
+    "task_end_time": "2022-04-01 21:31:01.753300",
+    "changes": 0,
+    "original_file_info": "<class 'pandas.core.frame.DataFrame'>\nRangeIndex: 4228398 entries, 0 to 4228397\nData columns (total 1 columns):\n #   Column      Dtype \n---  ------      ----- \n 0   NICKNAMES\r  object\ndtypes: object(1)\nmemory usage: 32.3+ MB\n"
+}
